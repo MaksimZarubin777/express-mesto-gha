@@ -53,7 +53,7 @@ const addCardLike = (req, res) => {
         const message = Object.values(e.errors).map((error) => error.message).join('; ');
         res.status(400).send({ message });
       }
-      if (e.message === 'Not found') {
+      if (e.name === 'CastError') {
         res.status(404).send({ message: 'Card not found' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
@@ -72,7 +72,7 @@ const removeCardLike = (req, res) => {
         const message = Object.values(e.errors).map((error) => error.message).join('; ');
         res.status(400).send({ message });
       }
-      if (e.message === 'Not found') {
+      if (e.name === 'CastError') {
         res.status(404).send({ message: 'Card not found' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
