@@ -1,3 +1,4 @@
+const mongoose  = require('mongoose');
 const Card = require('../models/card');
 
 const getCards = (req, res) => {
@@ -44,21 +45,18 @@ const deleteCard = (req, res) => {
 
 const addCardLike = (req, res) => {
   const { cardId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(cardId)) {
+    return res.status(400).send({ message: 'Неккоректный идентификатор карточки' });
+  }
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
-      res.send({ data: card });
+      if (!card) {
+        return res.status(404).send({ message: 'Card not found' });
+      }
+      return res.send({ data: card });
     })
-    .catch((e) => {
-      console.log(e.name)
-      if (e.name === 'ValidationError') {
-        const message = Object.values(e.errors).map((error) => error.message).join('; ');
-        res.status(400).send({ message });
-      }
-      if (e.name === 'CastError') {
-        res.status(404).send({ message: 'Card not found' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
-      }
+    .catch(() => {
+      res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
