@@ -30,15 +30,17 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(cardId)) {
+    return res.status(400).send({ message: 'Некорректный идентификатор карточки' });
+  }
   Card.findByIdAndRemove(cardId)
     .then((card) => {
-      res.send({ data: card });
-    })
-    .catch((e) => {
-      if (e === 'CastError') {
-        const message = Object.values(e.errors).map((error) => error.message).join('; ');
-        res.status(404).send({ message });
+      if (!card) {
+        return res.status(404).send({ message: 'Card not found' });
       }
+      return res.send({ data: card });
+    })
+    .catch(() => {
       res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
@@ -62,20 +64,18 @@ const addCardLike = (req, res) => {
 
 const removeCardLike = (req, res) => {
   const { cardId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(cardId)) {
+    return res.status(400).send({ message: 'Некорректный идентификатор карточки' });
+  }
   Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
-      res.send({ data: card });
+      if (!card) {
+        return res.status(404).send({ message: 'Card not found' });
+      }
+      return res.send({ data: card });
     })
-    .catch((e) => {
-      if (e.name === 'ValidationError') {
-        const message = Object.values(e.errors).map((error) => error.message).join('; ');
-        res.status(400).send({ message });
-      }
-      if (e.name === 'CastError') {
-        res.status(404).send({ message: 'Card not found' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
-      }
+    .catch(() => {
+      res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
