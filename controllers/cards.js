@@ -1,4 +1,4 @@
-const mongoose  = require('mongoose');
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 
 const getCards = (req, res) => {
@@ -33,7 +33,7 @@ const deleteCard = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
     return res.status(400).send({ message: 'Некорректный идентификатор карточки' });
   }
-  Card.findByIdAndRemove(cardId)
+  return Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
         return res.status(404).send({ message: 'Card not found' });
@@ -50,7 +50,7 @@ const addCardLike = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
     return res.status(400).send({ message: 'Неккоректный идентификатор карточки' });
   }
-  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+  return Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
         return res.status(404).send({ message: 'Card not found' });
@@ -67,7 +67,7 @@ const removeCardLike = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
     return res.status(400).send({ message: 'Некорректный идентификатор карточки' });
   }
-  Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
+  return Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
         return res.status(404).send({ message: 'Card not found' });
