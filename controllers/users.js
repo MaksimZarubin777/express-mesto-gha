@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const mongoose = require('mongoose');
 
 const getUsers = (req, res) => {
   User.find()
@@ -12,16 +13,18 @@ const getUsers = (req, res) => {
 
 const getUser = (req, res) => {
   const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).send({ message: 'Некорректный идентификатор пользователя' });
+  }
   User.findById(id)
     .then((user) => {
-      res.send({ data: user });
-    })
-    .catch((e) => {
-      if (e.name === 'CastError') {
+      if (!user) {
         res.status(404).send({ message: 'User not found' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
       }
+      return res.send({ data: user });
+    })
+    .catch(() => {
+      res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 

@@ -49,6 +49,7 @@ const addCardLike = (req, res) => {
       res.send({ data: card });
     })
     .catch((e) => {
+      console.log(e.name)
       if (e.name === 'ValidationError') {
         const message = Object.values(e.errors).map((error) => error.message).join('; ');
         res.status(400).send({ message });
