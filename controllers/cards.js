@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 const Card = require('../models/card');
+const {
+  SERVER_ERROR,
+  CREATED,
+  BAD_REQUEST,
+  NOT_FOUND,
+} = require('../constants');
 
 const getCards = (req, res) => {
   Card.find()
@@ -7,7 +13,7 @@ const getCards = (req, res) => {
       res.send({ data: cards });
     })
     .catch(() => {
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -16,14 +22,14 @@ const createCard = (req, res) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => {
-      res.status(201).send({ data: card });
+      res.status(CREATED).send({ data: card });
     })
     .catch((e) => {
       if (e.name === 'ValidationError') {
         const message = Object.values(e.errors).map((error) => error.message).join('; ');
-        res.status(400).send({ message });
+        res.status(BAD_REQUEST).send({ message });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -31,51 +37,51 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    return res.status(400).send({ message: 'Некорректный идентификатор карточки' });
+    return res.status(BAD_REQUEST).send({ message: 'Некорректный идентификатор карточки' });
   }
   return Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Card not found' });
+        return res.status(NOT_FOUND).send({ message: 'Card not found' });
       }
       return res.send({ data: card });
     })
     .catch(() => {
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
 const addCardLike = (req, res) => {
   const { cardId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    return res.status(400).send({ message: 'Неккоректный идентификатор карточки' });
+    return res.status(BAD_REQUEST).send({ message: 'Неккоректный идентификатор карточки' });
   }
   return Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Card not found' });
+        return res.status(NOT_FOUND).send({ message: 'Card not found' });
       }
       return res.send({ data: card });
     })
     .catch(() => {
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
 const removeCardLike = (req, res) => {
   const { cardId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    return res.status(400).send({ message: 'Некорректный идентификатор карточки' });
+    return res.status(BAD_REQUEST).send({ message: 'Некорректный идентификатор карточки' });
   }
   return Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Card not found' });
+        return res.status(NOT_FOUND).send({ message: 'Card not found' });
       }
       return res.send({ data: card });
     })
     .catch(() => {
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
