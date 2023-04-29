@@ -5,8 +5,12 @@ const helmet = require('helmet');
 const app = express();
 const { PORT = 3000 } = process.env;
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
+
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
+const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -19,18 +23,21 @@ mongoose.connect('mongodb://localhost:27017/mestodb ');
 app.use(express.json());
 app.use(helmet());
 app.use(limiter);
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6443fd14af4e4653a7bd15f8',
-  };
-  next();
-});
+app.post('/signup', createUser);
+app.post('/signin', login);
+app.use(auth);
 app.use(userRouter);
 app.use(cardRouter);
-app.use((req, res, next) => {
-  const error = new Error('Not found');
-  error.status = 404;
-  next(error);
+app.use(errors());
+app.use((err, req, res, next) => {
+  if (err.name === 'ValidationError') {
+    const message = Object.values(err.errors).map((error) => error.message).join('; ');
+    res.status(400).send({ message });
+  } else if (err.code === 11000) {
+    res.status(409).send({ message: 'Email уже зарегистрирован' });
+  }
+  res.status(err.statusCode).send({ message: err.message });
+  next();
 });
 app.use((error, req, res, next) => {
   res.status(error.status || 500);
@@ -39,6 +46,7 @@ app.use((error, req, res, next) => {
   });
   next();
 });
+
 app.listen(PORT, () => {
   console.log(`Server started at port ${PORT}`);
 });
