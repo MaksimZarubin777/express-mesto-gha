@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     select: false,
   },
-});
+}, { toJSON: { useProjection: true }, toObject: { useProjection: true } });
 
 userSchema.statics.findUserByCredentials = function findUserByCredentials(email, password) {
   return this.findOne({ email }).select('+password')
