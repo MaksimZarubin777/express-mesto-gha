@@ -5,6 +5,7 @@ const User = require('../models/user');
 const { CREATED } = require('../constants');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
+const AuthorizeError = require('../errors/AuthorizeError');
 
 const getUsers = (req, res, next) => {
   User.find()
@@ -71,6 +72,9 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
+      if (!user) {
+        throw new AuthorizeError('Неверные логин или пароль');
+      }
       const token = jwt.sign({ _id: user._id.toString() }, 'some-secret-key', { expiresIn: '7d' });
       res.set('Authorization', `Bearer ${token}`);
       res.send({ message: 'Successfull' });
