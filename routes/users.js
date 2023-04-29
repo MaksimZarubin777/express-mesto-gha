@@ -29,4 +29,4 @@ userRouter.patch('/users/me/avatar', celebrate({
   body: userValidationSchema,
 }), updateAvatar);
 
-module.exports = userRouter;
+module.exports = { userRouter, userValidationSchema };

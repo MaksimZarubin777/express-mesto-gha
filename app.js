@@ -1,13 +1,14 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const { celebrate } = require('celebrate');
 
 const app = express();
 const { PORT = 3000 } = process.env;
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 
-const userRouter = require('./routes/users');
+const {userRouter, userValidationSchema} = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -23,8 +24,12 @@ mongoose.connect('mongodb://localhost:27017/mestodb ');
 app.use(express.json());
 app.use(helmet());
 app.use(limiter);
-app.post('/signup', createUser);
-app.post('/signin', login);
+app.post('/signup', celebrate({
+  body: userValidationSchema,
+}), createUser);
+app.post('/signin', celebrate({
+  body: userValidationSchema,
+}), login);
 app.use(auth);
 app.use(userRouter);
 app.use(cardRouter);
