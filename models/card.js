@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { REG_EXP } = require('../constants');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -9,6 +10,10 @@ const cardSchema = new mongoose.Schema({
   },
   link: {
     type: String,
+    validate: {
+      validator: (v) => REG_EXP.test(v),
+      message: (props) => `${props.value} is not valid`,
+    },
     required: true,
   },
   owner: {

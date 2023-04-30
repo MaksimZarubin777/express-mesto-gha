@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { CREATED } = require('../constants');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
 
 const getUsers = (req, res, next) => {
   User.find()
@@ -16,10 +16,7 @@ const getUsers = (req, res, next) => {
 
 const getUser = (req, res, next) => {
   const { id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new BadRequestError('Некорректный идентификатор пользователя');
-  }
-  return User.findById(id)
+  User.findById(id)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('User not found');
@@ -48,7 +45,15 @@ const createUser = (req, res, next) => {
     .then((user) => {
       res.status(CREATED).send({ data: user });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Некорректные данные при создании пользователя'));
+      } else if (err.code === 11000) {
+        next(new ConflictError('Email уже зарегистрирован'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const updateUser = (req, res, next) => {
@@ -68,7 +73,13 @@ const updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail(new NotFoundError('User not found'))
     .then((userAvatar) => res.send({ data: userAvatar }))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Некорректные данные при создании пользователя'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const login = (req, res, next) => {
@@ -76,7 +87,6 @@ const login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id.toString() }, 'some-secret-key', { expiresIn: '7d' });
-      // res.set('Authorization', `Bearer ${token}`);
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,
@@ -84,6 +94,14 @@ const login = (req, res, next) => {
       res.send({ data: user });
     })
     .catch(next);
+};
+
+const logOut = (req, res, next) => {
+  try {
+    res.clearCookie('jwt').send({ message: 'Выход' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 const getMe = (req, res, next) => {
@@ -103,4 +121,5 @@ module.exports = {
   updateAvatar,
   login,
   getMe,
+  logOut,
 };
