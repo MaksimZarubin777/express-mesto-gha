@@ -9,6 +9,9 @@ const userValidationSchema = Joi.object().keys({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
 });
+const idValidationSchema = Joi.object({
+  _id: Joi.string().hex().length(24),
+})
 
 const userRouter = express.Router();
 const {
@@ -21,7 +24,9 @@ const {
 
 userRouter.get('/users', getUsers);
 userRouter.get('/users/me', getMe);
-userRouter.get('/users/:id', getUser);
+userRouter.get('/users/:id', celebrate({
+  params: idValidationSchema,
+}), getUser);
 userRouter.patch('/users/me', celebrate({
   body: userValidationSchema,
 }), updateUser);
