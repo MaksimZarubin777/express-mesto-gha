@@ -4,7 +4,7 @@ const AuthorizeError = require('../errors/AuthorizeError');
 module.exports = (req, res, next) => {
   const { Authorization } = req.headers;
   if (!Authorization || !Authorization.startsWith('Bearer ')) {
-    throw new AuthorizeError('1Необходима авторизация, Authorization--->, req.headers--->, req---->', Authorization, req.headers, req);
+    throw new AuthorizeError(`1Необходима авторизация, Authorization--->, req.headers--->, req---->, ${Authorization}, ${req.headers}, ${req}`);
   }
   const token = Authorization.replace('Bearer ', '');
   let payload;
