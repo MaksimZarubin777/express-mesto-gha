@@ -10,8 +10,8 @@ const userValidationSchema = Joi.object().keys({
   password: Joi.string().required(),
 });
 const idValidationSchema = Joi.object({
-  _id: Joi.string().hex().length(24),
-})
+  id: Joi.string().hex().length(24),
+});
 
 const userRouter = express.Router();
 const {
