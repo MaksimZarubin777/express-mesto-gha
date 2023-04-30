@@ -1,6 +1,7 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const { celebrate } = require('celebrate');
 
 const app = express();
@@ -24,6 +25,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb ');
 app.use(express.json());
 app.use(helmet());
 app.use(limiter);
+app.use(cookieParser())
 app.post('/signup', celebrate({
   body: userValidationSchema,
 }), createUser);

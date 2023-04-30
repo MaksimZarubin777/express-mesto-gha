@@ -1,15 +1,15 @@
-const jwt = require('jsonwebtoken');
+const token = require('jsonwebtoken');
 const AuthorizeError = require('../errors/AuthorizeError');
 
 module.exports = (req, res, next) => {
-  const { Authorization } = req.headers;
-  if (!Authorization || !Authorization.startsWith('Bearer ')) {
-    throw new AuthorizeError(`1Необходима авторизация, Authorization--->, req.headers--->, req---->, ${Authorization}, ${req.headers}, ${req}`);
+  const { jwt } = req.cookies;
+  if (!jwt) {
+    throw new AuthorizeError('1Необходима авторизация');
   }
-  const token = Authorization.replace('Bearer ', '');
+  // const token = Authorization.replace('Bearer ', '');
   let payload;
   try {
-    payload = jwt.verify(token, 'some-secret-key');
+    payload = token.verify(jwt, 'some-secret-key');
   } catch (err) {
     throw new AuthorizeError('2Необходима авторизация');
   }
