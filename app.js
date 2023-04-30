@@ -25,7 +25,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb ');
 app.use(express.json());
 app.use(helmet());
 app.use(limiter);
-app.use(cookieParser())
+app.use(cookieParser());
 app.post('/signup', celebrate({
   body: userValidationSchema,
 }), createUser);
