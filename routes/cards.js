@@ -19,7 +19,7 @@ const {
 } = require('../controllers/cards');
 
 cardRouter.get('/cards', getCards);
-cardRouter.post('/cards', celebrate({ ищвн: cardValidationSchema }), createCard);
+cardRouter.post('/cards', celebrate({ body: cardValidationSchema }), createCard);
 cardRouter.delete('/cards/:cardId', celebrate({ params: cardIdValidationSchema }), deleteCard);
 cardRouter.put('/cards/:cardId/likes', celebrate({ params: cardIdValidationSchema }), addCardLike);
 cardRouter.delete('/cards/:cardId/likes', celebrate({ params: cardIdValidationSchema }), removeCardLike);
