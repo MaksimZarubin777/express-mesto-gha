@@ -7,7 +7,7 @@ const cardValidationSchema = Joi.object().keys({
   link: Joi.string().required().pattern(cardValidationRegEx),
 });
 const cardIdValidationSchema = Joi.object({
-  id: Joi.string().hex().length(24),
+  cardId: Joi.string().hex().length(24),
 });
 const cardRouter = express.Router();
 const {
@@ -19,9 +19,9 @@ const {
 } = require('../controllers/cards');
 
 cardRouter.get('/cards', getCards);
-cardRouter.post('/cards', celebrate({ body: cardValidationSchema }), createCard);
-cardRouter.delete('/cards/:cardId', celebrate({ body: cardIdValidationSchema }), deleteCard);
-cardRouter.put('/cards/:cardId/likes', celebrate({ body: cardIdValidationSchema }), addCardLike);
-cardRouter.delete('/cards/:cardId/likes', celebrate({ body: cardIdValidationSchema }), removeCardLike);
+cardRouter.post('/cards', celebrate({ params: cardValidationSchema }), createCard);
+cardRouter.delete('/cards/:cardId', celebrate({ params: cardIdValidationSchema }), deleteCard);
+cardRouter.put('/cards/:cardId/likes', celebrate({ params: cardIdValidationSchema }), addCardLike);
+cardRouter.delete('/cards/:cardId/likes', celebrate({ params: cardIdValidationSchema }), removeCardLike);
 
 module.exports = cardRouter;
