@@ -79,6 +79,7 @@ const login = (req, res, next) => {
 };
 
 const getMe = (req, res, next) => {
+  console.log(req.user)
   const myId = req.user._id;
   User.findOne({ _id: myId })
     .then((user) => {
