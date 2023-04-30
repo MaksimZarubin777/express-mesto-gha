@@ -8,7 +8,7 @@ const { PORT = 3000 } = process.env;
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 
-const {userRouter, userValidationSchema} = require('./routes/users');
+const { userRouter, userValidationSchema } = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
