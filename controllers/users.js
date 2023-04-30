@@ -73,7 +73,7 @@ const login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign({ _id: user._id.toString() }, 'some-secret-key', { expiresIn: '7d' });
       res.set('Authorization', `Bearer ${token}`);
-      res.send({ message: 'Successfull' });
+      res.send({ message: `${token}, ${res.headers}` });
     })
     .catch(next);
 };
