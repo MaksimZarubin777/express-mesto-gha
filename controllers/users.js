@@ -79,8 +79,8 @@ const login = (req, res, next) => {
 };
 
 const getMe = (req, res, next) => {
-  const myEmail = req.body.email;
-  User.findOne({ email: myEmail })
+  const myId = req.user._id;
+  User.findOne({ _id: myId })
     .then((user) => {
       res.send({ data: user });
     })
